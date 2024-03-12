@@ -13,3 +13,10 @@ class ListagemLoaded extends ListagemRegistroState {
     required this.listaRegistro,
   });
 }
+
+class ListagemInfo extends ListagemRegistroState {
+  String mensagem = '';
+  ListagemInfo({
+    required this.mensagem,
+  });
+}

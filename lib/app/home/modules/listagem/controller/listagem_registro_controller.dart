@@ -13,9 +13,17 @@ class ListagemRegistroController extends Cubit<ListagemRegistroState> {
 
       final registro = await repository.loadingRegistro();
 
-      print(registro.toList());
+      await Future.delayed(const Duration(seconds: 3));
 
-      emit(ListagemLoaded(listaRegistro: registro));
+      if (registro.isEmpty) {
+        emit(
+          ListagemInfo(
+            mensagem: 'Não foi encontrado registro',
+          ),
+        );
+      } else {
+        emit(ListagemLoaded(listaRegistro: registro));
+      }
     } on Exception catch (e) {
       emit(ListagemInitial());
       throw Exception(e);

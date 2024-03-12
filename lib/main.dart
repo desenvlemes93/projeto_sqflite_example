@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:projeto_horas_com_mysql/app/home/modules/cadastro/controller/cadastro_controller.dart';
+import 'package:projeto_horas_com_mysql/app/home/modules/cadastro/controller/registro_cadastro_state.dart';
 import 'package:projeto_horas_com_mysql/app/home/modules/home_page.dart';
 import 'package:projeto_horas_com_mysql/app/home/modules/listagem/controller/listagem_registro_controller.dart';
 import 'package:projeto_horas_com_mysql/app/home/modules/listagem/controller/listagem_registro_state.dart';
@@ -16,6 +18,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<CadastroController>(
+          create: (context) => CadastroController(RegistroInitial()),
+        ),
         Provider<RegistroCadastroRepository>(
           create: (context) => RegistroCadastroRepositoryImpl(),
         ),

@@ -1,6 +1,13 @@
+import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:intl/intl.dart';
+import 'package:projeto_horas_com_mysql/app/home/modules/cadastro/controller/cadastro_controller.dart';
+import 'package:projeto_horas_com_mysql/app/home/modules/cadastro/controller/registro_cadastro_state.dart';
 import 'package:projeto_horas_com_mysql/app/home/modules/listagem/controller/listagem_registro_controller.dart';
 import 'package:projeto_horas_com_mysql/app/model/registro_model.dart';
 import 'package:projeto_horas_com_mysql/app/repository/registro_cadastro_repository.dart';
@@ -28,13 +35,15 @@ class _CadastroPageState extends State<CadastroPage> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.read<RegistroCadastroRepository>();
+    final controller = context.read<CadastroController>();
+    final listagem = context.read<ListagemRegistroController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cadastrar demanda'),
       ),
       body: CustomScrollView(
-        physics: const ScrollPhysics(),
+        physics: const ScrollPhysics(),        
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate(
@@ -121,8 +130,10 @@ class _CadastroPageState extends State<CadastroPage> {
                                 border: Border.all(color: Colors.black),
                               ),
                               child: Center(
-                                  child: Text(
-                                      horaInicial.format(context).toString())),
+                                child: Text(
+                                  horaInicial.format(context).toString(),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -138,10 +149,12 @@ class _CadastroPageState extends State<CadastroPage> {
                           value: TipoEntrada.entrada,
                           groupValue: tipoEntradaMulti,
                           onChanged: (value) {
-                            setState(() {
-                              entrada = 'E';
-                              tipoEntradaMulti = value;
-                            });
+                            setState(
+                              () {
+                                entrada = 'E';
+                                tipoEntradaMulti = value;
+                              },
+                            );
                           }),
                       RadioListTile<TipoEntrada>(
                           title: const Text('Saida'),
@@ -155,21 +168,69 @@ class _CadastroPageState extends State<CadastroPage> {
                           }),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final model = RegistroModel(
-                              nome: _descricaoEC.text,
-                              data: dataInicial,
-                              hora: horaInicial.format(context).toString(),
-                              tipoEntrada: entrada,
-                            );
-                            await controller.registrarCadastro(model);
-                            
-                            await context
-                                .read<ListagemRegistroController>()
-                                .loadingRegistro();
-                          },
-                          child: const Text('Salvar'),
+                        child: Stack(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  final model = RegistroModel(
+                                    nome: _descricaoEC.text,
+                                    data: dataInicial,
+                                    hora:
+                                        horaInicial.format(context).toString(),
+                                    tipoEntrada: entrada,
+                                  );
+                                  await controller.register(model);
+
+                                  listagem.loadingRegistro();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      duration: Duration(seconds: 2),
+                                      backgroundColor: Colors.green,
+                                      content: Text(
+                                          'Cadastro realizado com Sucesso'),
+                                    ),
+                                  );
+                                },
+                                child: BlocConsumer<CadastroController,
+                                    RegistroCadastroState>(
+                                  listener: (context, state) {},
+                                  builder: (context, state) {
+                                    return switch (state) {
+                                      RegistroInitial() =>
+                                        const SizedBox.shrink(),
+                                      RegistroInfo() => const SizedBox.shrink(),
+                                      RegistroLoading() => const Padding(
+                                          padding: EdgeInsets.only(right: 16.0),
+                                          child: Stack(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 240, bottom: 0),
+                                                child: Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    backgroundColor:
+                                                        Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      RegistroLoaded() =>
+                                        const SizedBox.shrink(),
+                                    };
+                                  },
+                                ),
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 16.0),
+                              child: Center(child: Text('Salvar')),
+                            ),
+                          ],
                         ),
                       ),
                     ],

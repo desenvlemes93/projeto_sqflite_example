@@ -30,8 +30,9 @@ class RegistroCadastroRepositoryImpl implements RegistroCadastroRepository {
   Future<List<RegistroModel>> loadingRegistro() async {
     final database = await DatabaseSqlLite().openConnection();
 
-    var data = await database.rawQuery('select * from registro');    
+    var data =
+        await database.rawQuery('select * from registro order by datainicial ');
 
-    return data.map((e) => RegistroModel.fromMap(e)).toList();   
+    return data.map((e) => RegistroModel.fromMap(e)).toList();
   }
 }

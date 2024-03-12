@@ -26,9 +26,6 @@ class _ListagemPageState extends State<ListagemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () async {
-        await _buscar();
-      }),
       body: BlocConsumer<ListagemRegistroController, ListagemRegistroState>(
         listener: (context, state) {
           switch (state) {
@@ -50,29 +47,39 @@ class _ListagemPageState extends State<ListagemPage> {
                   color: Colors.red,
                 ),
               ),
-            ListagemLoaded(listaRegistro: var listaRegistro) =>
-              ListView.builder(
-                itemCount: listaRegistro.length,
-                itemBuilder: (context, index) {
-                  var registro = listaRegistro[index];
-                  return ListTile(
-                    trailing: Text(
-                      style: TextStyle(
-                        color: registro.tipoEntrada == 'E'
-                            ? Colors.green
-                            : Colors.red,
-                      ),
-                      registro.tipoEntrada == 'E' ? 'Entrada' : 'Saida',
-                    ),
-                    leading: Text(registro.hora),
-                    title: Text(
-                        registro.nome == '' ? 'Nâo Encontrado' : registro.nome),
-                    subtitle: Text(
-                      DateFormat('dd/MM/yyyy').format(registro.data),
-                    ),
-                  );
-                },
+            ListagemLoaded(listaRegistro: var listaRegistro) => Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView.builder(
+                  itemCount: listaRegistro.length,
+                  itemBuilder: (context, index) {
+                    var registro = listaRegistro[index];
+                    return ExpansionTile(
+                      title:
+                          Text(DateFormat('dd/MM/yyyy').format(registro.data)),
+                      children: [
+                        ListTile(
+                          trailing: Text(
+                            style: TextStyle(
+                              color: registro.tipoEntrada == 'E'
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                            registro.tipoEntrada == 'E' ? 'Entrada' : 'Saida',
+                          ),
+                          leading: Text(registro.hora),
+                          title: Text(registro.nome == ''
+                              ? 'Nâo Encontrado'
+                              : registro.nome),
+                          subtitle: Text(
+                            DateFormat('dd/MM/yyyy').format(registro.data),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
+            ListagemInfo(mensagem: var message) => Center(child: Text(message)),
             _ => const SizedBox.shrink(),
           };
         },
